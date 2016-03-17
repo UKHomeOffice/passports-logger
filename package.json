@@ -1,0 +1,33 @@
+{
+  "name": "hmpo-logger",
+  "version": "0.0.1",
+  "description": "Consistent logging for hmpo apps",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run lint && npm run unit",
+    "lint": "eslint .",
+    "unit": "mocha test/spec/ --recursive --require test/helper.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UKHomeOffice/passports-logger.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UKHomeOffice/passports-logger/issues"
+  },
+  "homepage": "https://github.com/UKHomeOffice/passports-logger#readme",
+  "dependencies": {
+    "morgan": "^1.7.0",
+    "underscore": "^1.8.3",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^2.4.0",
+    "mocha": "^2.4.5",
+    "sinon": "^1.17.3",
+    "sinon-chai": "^2.8.0"
+  }
+}

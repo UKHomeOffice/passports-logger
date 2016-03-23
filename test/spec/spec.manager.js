@@ -54,7 +54,7 @@ describe('instance', function () {
             t[1].filename.should.equal('app.log');
 
             t[2].name.should.equal('error');
-            t[2].level.should.equal('error');
+            t[2].level.should.equal('exceptions');
             t[2].filename.should.equal('error.log');
         });
 

@@ -96,6 +96,19 @@ describe('logger instance', function () {
 
     describe('tokens', function () {
 
+        describe('env', function () {
+            it('should return an environment variable', function () {
+                Logger.tokens.env.fn.call(null, 'USER')
+                    .should.equal(process.env.USER);
+            });
+
+            it('should return undefined for unlikely env variable', function () {
+                delete process.env.NON_EXISTANT_ENV_VAR;
+                expect(Logger.tokens.res.fn.call(null, 'NON_EXISTANT_ENV_VAR'))
+                    .to.be.undefined;
+            });
+        });
+
         describe('res', function () {
             var getHeader = sinon.stub();
             getHeader.returns(undefined);

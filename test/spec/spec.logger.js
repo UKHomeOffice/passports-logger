@@ -39,7 +39,7 @@ describe('logger instance', function () {
             logSpy.should.have.been.calledWithExactly(
                 'info', 'message',
                 sinon.match({
-                    name: 'test',
+                    label: 'test',
                     host: sinon.match.string
                 }));
         });
@@ -51,7 +51,7 @@ describe('logger instance', function () {
             logSpy.should.have.been.calledWithExactly(
                 'info', 'message metadata 4',
                 sinon.match({
-                    name: 'test',
+                    label: 'test',
                     host: sinon.match.string,
                     test1: 'metadata',
                     test2: 4
@@ -69,7 +69,7 @@ describe('logger instance', function () {
             logSpy.should.have.been.calledWithExactly(
                 'info', 'message',
                 sinon.match({
-                    name: 'test',
+                    label: 'test',
                     host: sinon.match.string,
                     sessionID: 'abc123',
                     request: '/abc/123'
@@ -84,7 +84,7 @@ describe('logger instance', function () {
             logSpy.should.have.been.calledWithExactly(
                 'info', 'message',
                     sinon.match({
-                        name: 'test',
+                        label: 'test',
                         host: sinon.match.string,
                         request: ''
                     }));

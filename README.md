@@ -50,7 +50,7 @@ Initialise the logger at the top level of the app, specifying the log locations 
 
 ```javascript
 var hmpoLogger = require('hmpo-logger');
-hmpoLogger.config({
+hmpoLogger.config({ // defaults:
     logPublicRequests: false,
     console: true,
     connsoleJSON: false,
@@ -64,6 +64,7 @@ hmpoLogger.config({
     errorLevel: ['error', 'warn'],
     meta: {
         host: 'host',
+        pm: 'env[pm_id]',
         sessionID: 'sessionID',
         verb: 'method',
         request: 'request'

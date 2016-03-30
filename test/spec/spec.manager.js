@@ -82,6 +82,23 @@ describe('instance', function () {
             t[2].filename.should.equal('testerror.log');
         });
 
+        it('should augment instead of overwriting configured meta data', function () {
+            manager.config({
+                meta: {
+                    host: undefined,
+                    request: null,
+                    extra: 'extravalue',
+                    verb: false
+                }
+            });
+
+            manager._options.meta.should.deep.equal({
+                pm: 'env[pm_id]',
+                sessionID: 'sessionID',
+                extra: 'extravalue'
+            });
+        });
+
     });
 
     describe('middleware', function () {

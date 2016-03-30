@@ -70,6 +70,7 @@ hmpoLogger.config({ // defaults:
     },
     requestMeta: {
         clientip: 'clientip',
+        uniqueID: 'x-uniq-id',
         remoteAddress: 'connection.remoteAddress',
         hostname: 'hostname',
         port: 'port',

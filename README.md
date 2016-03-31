@@ -21,6 +21,8 @@ logger.warn('This is a warning');
 logger.warn('This is an %s warning', 'interpolated');
 logger.info('This is just info with :meta', {meta: 'metavalue'});
 logger.info(':method :url took :responseTime ms and was res[content-length] bytes', {req: req, res: res});
+
+logger.log('info', 'response :responseText', { responseText: logger.trimHtml(htmlBody, 100)});
 ```
 
 
@@ -42,6 +44,16 @@ If name begins with a colon it is appended to the guessed name.
 require('hmpo-logger').get(':subname');
 ```
 Returns a `winston` logger.
+
+### `logger.trimHtml(text, maxLength)`
+
+Trim tags out of an HTML string to help with more concise HTML error response logging. Defaults to a `maxLength` of 400.
+
+Returns a string, or passes through `text` if not a string.
+
+```javascript
+require('hmpo-logger').get(name);
+```
 
 
 ### `config(options)`

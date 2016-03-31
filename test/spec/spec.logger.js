@@ -74,6 +74,36 @@ describe('logger instance', function () {
         });
     });
 
+    describe('trimHtml', function () {
+        var logger = new Logger();
+
+        it('should filter an html body to raw text', function () {
+            var body = '<html><head><title>a\n title</title></head><body>\r\n<b\n>this</b> is <i>the</i><br>body<script>\n\n//\n</script></body></html>';
+
+            logger.trimHtml(body).should.equal('a title: this is the body');
+        });
+
+        it('should return anything that isn\'t a string', function () {
+            logger.trimHtml(123).should.equal(123);
+            var obj = {};
+            logger.trimHtml(obj).should.equal(obj);
+            var arr = [];
+            logger.trimHtml(arr).should.equal(arr);
+            expect(logger.trimHtml(undefined)).to.be.undefined;
+        });
+
+        it('should shorten a body to max length', function () {
+            var body = Array(501).join('a');
+
+            logger.trimHtml(body).should.have.length(400);
+            logger.trimHtml(body, 200).should.have.length(200);
+            logger.trimHtml(body, 600).should.have.length(500);
+            logger.trimHtml('longbody', 7).should.equal('long...');
+        });
+
+    });
+
+
     describe('log', function () {
         var logger;
         beforeEach(function () {

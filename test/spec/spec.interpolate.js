@@ -61,9 +61,10 @@ describe('interpolate', function () {
             interpolate.getTokenValue(source, 'value2.subvalue2').should.equal('2');
             interpolate.getTokenValue(source, 'value3.subvalue3.subsubvalue3').should.equal(3);
         });
-        it('should return value specified by dotted path', function () {
-            interpolate.getTokenValue(source, 'value2', 'subvalue2').should.equal('2');
-            interpolate.getTokenValue(source, 'value3.subvalue3', 'subsubvalue3').should.equal(3);
+        it('should return value specified by array of paths', function () {
+            interpolate.getTokenValue(source, ['value2', 'subvalue2']).should.equal('2');
+            interpolate.getTokenValue(source, ['value3.subvalue3', 'subsubvalue3']).should.equal(3);
+            interpolate.getTokenValue(source, ['value3.subvalue3', null, 'subsubvalue3']).should.equal(3);
         });
         it('should return undefined for a nonexistant primative path', function () {
             expect(interpolate.getTokenValue(source, 'value2.badvalue')).to.not.be.ok;

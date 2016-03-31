@@ -25,6 +25,55 @@ describe('logger instance', function () {
         logger._name.should.equal('testname');
     });
 
+    describe('_addMeta', function () {
+        var logger = new Logger('testname');
+        var sources = [
+            {
+                source: {
+                    name: 'value'
+                }
+            },
+            {
+                source: {
+                    name: 'notvalue'
+                },
+                source2: {
+                    name: 'notvalue'
+                }
+            }
+        ];
+
+
+        it('should add first value found in sources', function () {
+            var dest = {
+                original: 'dest'
+            };
+
+            logger._addMetaData(dest, {
+                destName: 'source.name'
+            }, sources);
+
+            dest.should.deep.equal({
+                original: 'dest',
+                destName: 'value'
+            });
+        });
+
+        it('should ignore values not found in sources', function () {
+            var dest = {
+                original: 'dest'
+            };
+
+            logger._addMetaData(dest, {
+                destName: 'source.name.not.present'
+            }, sources);
+
+            dest.should.deep.equal({
+                original: 'dest'
+            });
+        });
+    });
+
     describe('log', function () {
         var logger;
         beforeEach(function () {

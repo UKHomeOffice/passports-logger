@@ -93,7 +93,7 @@ describe('instance', function () {
             });
 
             manager._options.meta.should.deep.equal({
-                pm: 'env[pm_id]',
+                pm: 'env.pm_id',
                 sessionID: 'sessionID',
                 extra: 'extravalue'
             });

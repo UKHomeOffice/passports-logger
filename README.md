@@ -63,14 +63,14 @@ hmpoLogger.config({ // defaults:
     errorLevel: 'exceptions',
     meta: {
         host: 'host',
-        pm: 'env[pm_id]',
+        pm: 'env.pm_id',
         sessionID: 'sessionID',
         verb: 'method',
         request: 'request'
     },
     requestMeta: {
         clientip: 'clientip',
-        uniqueID: 'x-uniq-id',
+        uniqueID: 'req.x-uniq-id',
         remoteAddress: 'connection.remoteAddress',
         hostname: 'hostname',
         port: 'port',

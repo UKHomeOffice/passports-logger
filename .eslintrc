@@ -4,6 +4,7 @@
     },
     "extends": "eslint:recommended",
     "rules": {
+        "no-mixed-requires": [2, { "allowCall": true }],
         "quotes": [2, "single"],
         "no-trailing-spaces": 2,
         "indent": 2,

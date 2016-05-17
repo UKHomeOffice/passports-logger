@@ -4,9 +4,10 @@
   "description": "Consistent logging for hmpo apps",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && npm run unit",
+    "test": "npm run lint && npm run unit && npm run snyk",
     "lint": "eslint .",
-    "unit": "mocha test/spec/ --recursive --require test/helper.js"
+    "unit": "mocha test/spec/ --recursive --require test/helper.js",
+    "snyk": "snyk test"
   },
   "repository": {
     "type": "git",
@@ -26,9 +27,10 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "eslint": "^2.4.0",
+    "eslint": "^2.10.2",
     "mocha": "^2.4.5",
-    "sinon": "^1.17.3",
-    "sinon-chai": "^2.8.0"
+    "sinon": "^1.17.4",
+    "sinon-chai": "^2.8.0",
+    "snyk": "^1.14.3"
   }
 }

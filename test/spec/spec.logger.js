@@ -112,6 +112,19 @@ describe('logger instance', function () {
             logger = new Logger('test', manager);
         });
 
+        it('should default no metadata and unknown label if no args given to logger instance', function () {
+            logger = new Logger();
+            logger.log('info', 'message', {});
+
+            logSpy.should.have.been.calledWithExactly('info', 'message', { label: 'Unknown'});
+        });
+
+        it('should default to info and empty message if no args are given', function () {
+            logger.log();
+
+            logSpy.should.have.been.calledWithExactly('info', '', sinon.match.object);
+        });
+
         it('should add the logger name and host to the log meta', function () {
             logger.log('info', 'message');
 
@@ -123,12 +136,47 @@ describe('logger instance', function () {
                 }));
         });
 
+        it('should pick up error from metadata', function () {
+            logger.log('info', 'an error :err.message', { err: new Error('test') });
+
+            logSpy.should.have.been.calledWithExactly('info', 'an error test',
+                sinon.match.instanceOf(Error).and(sinon.match({
+                    label: 'test',
+                    host: sinon.match.string
+                }))
+            );
+        });
+
+        it('should identify metadata as error', function () {
+            logger.log('info', 'an error :err.message', new Error('test'));
+
+            logSpy.should.have.been.calledWithExactly('info', 'an error test',
+                sinon.match.instanceOf(Error).and(sinon.match({
+                    label: 'test',
+                    host: sinon.match.string
+                }))
+            );
+        });
+
+        it('passes a callback through to the winston logger if specified', function () {
+            var cb = sinon.spy();
+            logger.log('info', 'message', cb);
+
+            logSpy.should.have.been.calledWithExactly(
+                'info', 'message',
+                sinon.match({
+                    label: 'test',
+                    host: sinon.match.string
+                }),
+                cb);
+        });
+
         it('should add meta placeholders to the message', function () {
-            logger.log('info', 'message :test1 :test2',
+            logger.log('info', 'message :test1 :test2 :notfound',
                 {test1: 'metadata', test2: 4});
 
             logSpy.should.have.been.calledWithExactly(
-                'info', 'message metadata 4',
+                'info', 'message metadata 4 -',
                 sinon.match({
                     label: 'test',
                     host: sinon.match.string,
@@ -155,6 +203,55 @@ describe('logger instance', function () {
                 }));
         });
 
+        it('should pull res out of req object in meta', function () {
+            var req = {
+                res: {
+                    responseTime: 1234567
+                }
+            };
+
+            logger.log('info', 'message :responseTime', {req: req});
+
+            logSpy.should.have.been.calledWithExactly('info', 'message 1234567', sinon.match.object);
+        });
+
+        it('should pull req out of res object in meta', function () {
+            var res = {
+                req: {
+                    url: 'testurl'
+                }
+            };
+
+            logger.log('info', 'message :request', {res: res});
+
+            logSpy.should.have.been.calledWithExactly('info', 'message testurl', sinon.match.object);
+        });
+
+        it('should decoded additional info from req object if level is request', function () {
+            var req = new IncomingMessage();
+            req.sessionID = 'abc123';
+            req.originalUrl = '/abc/123';
+            req.method = 'GET';
+            req.url = '/123';
+
+            var res = {
+                responseTime: 5000
+            };
+
+            logger.log('request', 'message', {req: req, res: res});
+
+            logSpy.should.have.been.calledWithExactly(
+                'request', 'message',
+                sinon.match({
+                    label: 'test',
+                    host: sinon.match.string,
+                    sessionID: 'abc123',
+                    request: '/abc/123',
+                    responseTime: 5000,
+                    verb: 'GET'
+                }));
+        });
+
         it('should decode an unpopulated req object in meta', function () {
             var req = new IncomingMessage();
 
@@ -174,6 +271,24 @@ describe('logger instance', function () {
 
 
     describe('tokens', function () {
+
+        describe('httpVersion', function () {
+            it('should return formatted http version', function () {
+                var meta = {
+                    req: {
+                        httpVersionMajor: 44,
+                        httpVersionMinor: 55
+                    }
+                };
+                Logger.tokens.httpVersion.fn.call(meta)
+                    .should.equal('44.55');
+            });
+
+            it('should return undefined if no http version present', function () {
+                expect(Logger.tokens.httpVersion.fn.call({ req: {} }))
+                    .to.be.undefined;
+            });
+        });
 
         describe('env', function () {
             it('should return an environment variable', function () {
@@ -233,7 +348,8 @@ describe('logger instance', function () {
                 req: {
                     headers: {
                         test: 'value',
-                        wrong: 'wrong'
+                        wrong: 'wrong',
+                        multi: ['value1', 'value2']
                     }
                 }
             };
@@ -241,6 +357,11 @@ describe('logger instance', function () {
             it('should return the correct request header', function () {
                 Logger.tokens.req.fn.call(context, 'test')
                     .should.equal('value');
+            });
+
+            it('should return the correct request header if multiple', function () {
+                Logger.tokens.req.fn.call(context, 'multi')
+                    .should.equal('value1, value2');
             });
 
             it('should return undefined for no headers', function () {

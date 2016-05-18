@@ -27,7 +27,7 @@ describe('Module Name', function () {
 
     });
 
-    describe('_getCallerFile', function () {
+    describe('getCallerFile', function () {
 
         it('should return filename of this unit test', function () {
             var stack = moduleName.getStack();
@@ -45,7 +45,7 @@ describe('Module Name', function () {
 
     });
 
-    describe('_getCallerPackageFile', function () {
+    describe('getCallerPackageFile', function () {
 
         it('should return filename of this package', function () {
             var packageFile = moduleName.getCallerPackageFile(__filename);
@@ -59,13 +59,34 @@ describe('Module Name', function () {
 
     });
 
-    describe('_getName', function () {
+    describe('getName', function () {
 
         it('should return name of this package', function () {
             var name = moduleName.getName(0);
 
             name.should.equal('hmpo-logger');
         });
+
+        it('should return Unknown if getStack fails', sinon.test(function () {
+            this.stub(moduleName, 'getStack').returns(undefined);
+            moduleName.getName().should.equal('Unknown');
+        }));
+
+        it('should return Unknown if getCallerFile fails', sinon.test(function () {
+            this.stub(moduleName, 'getCallerFile').returns(undefined);
+            moduleName.getName().should.equal('Unknown');
+        }));
+
+        it('should return Unknown if getCallerPackageFile fails', sinon.test(function () {
+            this.stub(moduleName, 'getCallerPackageFile').returns(undefined);
+            moduleName.getName().should.equal('Unknown');
+        }));
+
+        it('should return Unknown if an error is thrown', sinon.test(function () {
+            this.stub(moduleName, 'getCallerFile').throws(new Error('test error'));
+            moduleName.getName().should.equal('Unknown');
+        }));
+
 
     });
 

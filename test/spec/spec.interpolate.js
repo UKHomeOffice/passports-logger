@@ -10,6 +10,8 @@ describe('interpolate', function () {
             interpolate.cleanValue('s').should.equal('s');
             interpolate.cleanValue(1).should.equal(1);
             interpolate.cleanValue(true).should.equal(true);
+            var date = new Date();
+            interpolate.cleanValue(date).should.equal(date);
             expect(interpolate.cleanValue(null)).to.equal(null);
             expect(interpolate.cleanValue(undefined)).to.equal(undefined);
         });
@@ -56,6 +58,12 @@ describe('interpolate', function () {
             }
         };
 
+        it('should return undefined if a falsey key is given', function () {
+            expect(interpolate.getTokenValue(source)).to.be.undefined;
+            expect(interpolate.getTokenValue(source, '')).to.be.undefined;
+            expect(interpolate.getTokenValue(source, false)).to.be.undefined;
+            expect(interpolate.getTokenValue(source, null)).to.be.undefined;
+        });
         it('should return value specified by dotted path', function () {
             interpolate.getTokenValue(source, 'value1').should.equal(1);
             interpolate.getTokenValue(source, 'value2.subvalue2').should.equal('2');

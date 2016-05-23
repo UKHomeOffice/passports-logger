@@ -40,6 +40,14 @@ describe('instance', function () {
             global.GlobalHmpoLogger.should.equal(manager);
         });
 
+        it('should warn to console if config is used twice', sinon.test(function () {
+            this.stub(global.console, 'warn');
+            manager.config();
+            global.console.warn.should.not.have.been.called;
+            manager.config();
+            global.console.warn.should.have.been.calledOnce;
+        }));
+
         it('should set up default logging transport', function () {
             manager.config();
 
@@ -82,6 +90,17 @@ describe('instance', function () {
             t[2].filename.should.equal('testerror.log');
         });
 
+        it('should disable transports that are specified as falsey', function () {
+            manager.config({
+                console: false,
+                app: false,
+                error: false
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(0);
+        });
+
         it('should augment instead of overwriting configured meta data', function () {
             manager.config({
                 meta: {
@@ -102,6 +121,25 @@ describe('instance', function () {
     });
 
     describe('middleware', function () {
+        var logger = manager.get('testname');
+        var req, res, cb;
+
+        beforeEach(function () {
+            sinon.stub(manager, 'get').returns(logger);
+            sinon.stub(logger, 'request');
+
+            req = {};
+            res = {
+                writeHead: sinon.stub()
+            };
+            cb = sinon.stub();
+        });
+
+        afterEach(function () {
+            manager.get.restore();
+            logger.request.restore();
+        });
+
         it('should return express middleware', function () {
             var middleware = manager.middleware();
 
@@ -109,15 +147,74 @@ describe('instance', function () {
             middleware.length.should.equal(3);
         });
 
+        it('should log details from a request', function (done) {
+            var middleware = manager.middleware();
+
+            middleware(req, res, cb);
+            cb.should.have.been.calledOnce;
+
+            res.writeHead();
+
+            setTimeout(function () {
+                res.responseTime.should.be.a('number');
+                logger.request.should.have.been.calledOnce;
+                logger.request.should.have.been.calledWithExactly(
+                    manager._options.format,
+                    { req: req, res: res }
+                );
+                done();
+            }, 50);
+        });
+
+        it('should not log public static requests', function (done) {
+            var middleware = manager.middleware();
+
+            req.url = 'blah/public/blah';
+
+            middleware(req, res, cb);
+            cb.should.have.been.calledOnce;
+
+            res.writeHead();
+
+            setTimeout(function () {
+                logger.request.should.not.have.been.called;
+                done();
+            }, 50);
+        });
+
+        it('should not log healthcheck requests', function (done) {
+            var middleware = manager.middleware();
+
+            req.url = '/healthcheck';
+
+            middleware(req, res, cb);
+            cb.should.have.been.calledOnce;
+
+            res.writeHead();
+
+            setTimeout(function () {
+                logger.request.should.not.have.been.called;
+                done();
+            }, 50);
+        });
+
     });
 
     describe('get', function () {
+        beforeEach(function () {
+            delete global.GlobalHmpoLogger;
+            winston.loggers.options.transports = [];
+        });
+
         it('should return a winston logger with a specified name', function () {
-            var logger = manager.get('testname');
+            var logger = manager.get('testname1');
 
             logger.should.be.instanceof(Logger);
             logger.should.be.instanceof(winston.Logger);
-            logger._name.should.equal('testname');
+            logger._name.should.equal('testname1');
+
+            var logger2 = manager.get('testname1');
+            logger2.should.equal(logger);
         });
 
         it('should return a winston logger with a guessed name', function () {

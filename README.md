@@ -77,7 +77,7 @@ hmpoLogger.config({ // defaults:
         host: 'host',
         pm: 'env.pm_id',
         sessionID: 'sessionID',
-        verb: 'method',
+        method: 'method',
         request: 'request'
     },
     requestMeta: {

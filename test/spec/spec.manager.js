@@ -90,6 +90,19 @@ describe('instance', function () {
             t[2].filename.should.equal('testerror.log');
         });
 
+        it('should use non-logstash logging if JSON is false', function () {
+            manager.config({
+                appJSON: false,
+                errorJSON: false
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(3);
+
+            expect(t[1].formatter).to.be.undefined;
+            expect(t[2].formatter).to.be.undefined;
+        });
+
         it('should disable transports that are specified as falsey', function () {
             manager.config({
                 console: false,
@@ -107,7 +120,7 @@ describe('instance', function () {
                     host: undefined,
                     request: null,
                     extra: 'extravalue',
-                    verb: false
+                    method: false
                 }
             });
 

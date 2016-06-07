@@ -24,6 +24,7 @@
   "dependencies": {
     "on-finished": "^2.3.0",
     "on-headers": "^1.0.1",
+    "sort-object-keys": "^1.1.2",
     "underscore": "^1.8.3",
     "winston": "^2.2.0"
   },

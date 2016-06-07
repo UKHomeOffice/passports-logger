@@ -246,9 +246,9 @@ describe('logger instance', function () {
                     label: 'test',
                     host: sinon.match.string,
                     sessionID: 'abc123',
+                    method: 'GET',
                     request: '/abc/123',
-                    responseTime: 5000,
-                    verb: 'GET'
+                    responseTime: 5000
                 }));
         });
 

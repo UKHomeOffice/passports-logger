@@ -1,6 +1,7 @@
 
 var Manager = require('../../lib/manager'),
     Logger = require('../../lib/logger'),
+    logstash = require('../../lib/logstash'),
     winston = require('winston');
 
 
@@ -92,6 +93,7 @@ describe('instance', function () {
 
         it('should use non-logstash logging if JSON is false', function () {
             manager.config({
+                consoleJSON: false,
                 appJSON: false,
                 errorJSON: false
             });
@@ -99,8 +101,24 @@ describe('instance', function () {
             var t = winston.loggers.options.transports;
             t.length.should.equal(3);
 
+            expect(t[0].formatter).to.be.undefined;
             expect(t[1].formatter).to.be.undefined;
             expect(t[2].formatter).to.be.undefined;
+        });
+
+        it('should use logstash logging if JSON is true', function () {
+            manager.config({
+                consoleJSON: true,
+                appJSON: true,
+                errorJSON: true
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(3);
+
+            t[0].formatter.should.equal(logstash);
+            t[1].formatter.should.equal(logstash);
+            t[2].formatter.should.equal(logstash);
         });
 
         it('should disable transports that are specified as falsey', function () {

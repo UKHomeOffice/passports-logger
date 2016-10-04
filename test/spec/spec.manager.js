@@ -160,6 +160,16 @@ describe('instance', function () {
             middleware.length.should.equal(3);
         });
 
+        it('should log using label of :express', function () {
+            manager.middleware();
+            manager.get.should.have.been.calledWithExactly(':express');
+        });
+
+        it('should log using given logger name as label', function () {
+            manager.middleware('customname');
+            manager.get.should.have.been.calledWithExactly('customname');
+        });
+
         it('should log details from a request', function (done) {
             var middleware = manager.middleware();
 

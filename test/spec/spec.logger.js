@@ -272,6 +272,85 @@ describe('logger instance', function () {
 
     describe('tokens', function () {
 
+        describe('request', function () {
+            it('should return the full request URL', function () {
+                var meta = {
+                    req: {
+                        originalUrl: '/test/path?query=string',
+                        url: '/path'
+                    }
+                };
+                Logger.tokens.request.fn.call(meta)
+                    .should.equal('/test/path?query=string');
+            });
+
+            it('should return the url if originaUrl is not present', function () {
+                var meta = {
+                    req: {
+                        url: '/path'
+                    }
+                };
+                Logger.tokens.request.fn.call(meta)
+                    .should.equal('/path');
+            });
+        });
+
+        describe('strippedRequest', function () {
+            it('should return originalUrl without the query string', function () {
+                var meta = {
+                    req: {
+                        originalUrl: '/test/path?query=string',
+                        url: '/path'
+                    }
+                };
+                Logger.tokens.strippedRequest.fn.call(meta)
+                    .should.equal('/test/path');
+            });
+
+            it('should return url without the query string if orginalUrl is not present', function () {
+                var meta = {
+                    req: {
+                        url: '/test/path?query=string'
+                    }
+                };
+                Logger.tokens.strippedRequest.fn.call(meta)
+                    .should.equal('/test/path');
+            });
+
+            it('should return a url that has no query string', function () {
+                var meta = {
+                    req: {
+                        originalUrl: '/test/path',
+                        url: '/path'
+                    }
+                };
+                Logger.tokens.strippedRequest.fn.call(meta)
+                    .should.equal('/test/path');
+            });
+
+            it('should return the url if originaUrl is not present', function () {
+                var meta = {
+                    req: {
+                        url: '/path'
+                    }
+                };
+                Logger.tokens.strippedRequest.fn.call(meta)
+                    .should.equal('/path');
+            });
+
+            it('should return undefined if neither is present', function () {
+                var meta = {
+                    req: {}
+                };
+                expect(Logger.tokens.strippedRequest.fn.call(meta)).to.be.undefined;
+            });
+
+            it('should return undefined if req is not present', function () {
+                var meta = {};
+                expect(Logger.tokens.strippedRequest.fn.call(meta)).to.be.undefined;
+            });
+        });
+
         describe('httpVersion', function () {
             it('should return formatted http version', function () {
                 var meta = {

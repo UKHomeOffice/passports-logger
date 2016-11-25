@@ -22,6 +22,9 @@
   },
   "homepage": "https://github.com/UKHomeOffice/passports-logger#readme",
   "dependencies": {
+    "async": "^2.1.4",
+    "debug": "^2.3.3",
+    "glob": "^7.1.1",
     "on-finished": "^2.3.0",
     "on-headers": "^1.0.1",
     "sort-object-keys": "^1.1.2",

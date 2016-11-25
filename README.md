@@ -93,12 +93,15 @@ hmpoLogger.config({ // defaults:
     },
     logPublicRequests: false,
     logHealthcheckRequests: false,
+    sizeRotate: false,
+    dateRotate: false,
+    maxSize: 50 * 1024 * 1024,
+    maxFiles: 5,
     format: ':clientip :sessionID :method :request HTTP/:httpVersion :statusCode :res[content-length] - :responseTime ms'
 });
 ```
 
 Returns `hmpoLogger`.
-
 
 ### `middleware()`
 
@@ -113,3 +116,46 @@ app.use(hmpoLogger.middleware());
 
 Returns express compatible middleware
 
+## Rotating Logfiles
+
+The config supports native winston log rotation based on file size and adds rotation based on the date. Both options cannot be specified at the same time. The settings apply to both the app and error log files.
+
+### Rotating based on size
+```
+  sizeRotate: true,
+  maxSize: 50 * 1024 * 1024, // limit file to 50MB
+  maxFiles: 5, // keep 5 rotated files
+```
+The names of the log files will be incremented based on the log filename, eg:
+```
+/path/name.log
+/path/name.1.log
+/path/name.2.log
+```
+
+### Rotating based on date
+```
+  dateRotate: true,
+  maxFiles: 5, // keep 5 rotated files
+```
+The names of the log files will include the year, month, and day and will be based on the log filename, eg:
+```
+/path/name.log
+/path/name-2016-10-02.log
+/path/name-2016-10-01.log
+/path/name-2016-09-31.log
+```
+
+### Additional winston transport options
+Winston options can be specified for the wrapped winston transports. These will override any options set by `hmpo-logger`, eg:
+```
+  consoleOptions: { // Console transport options
+    stderrLevels: [ 'error' ]
+  },
+  appOptions: { // File transport options
+    eol: '\t\n',
+  },
+  errorOptions: { // File transport options
+    maxRetries: 4    
+  }
+```

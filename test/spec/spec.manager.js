@@ -2,8 +2,8 @@
 var Manager = require('../../lib/manager'),
     Logger = require('../../lib/logger'),
     logstash = require('../../lib/logstash'),
-    winston = require('winston');
-
+    winston = require('winston'),
+    FileRotateTransport = require('../../lib/filerotatetransport');
 
 describe('Manager Class', function () {
 
@@ -91,6 +91,48 @@ describe('instance', function () {
             t[2].filename.should.equal('testerror.log');
         });
 
+        it('should only set up error transport if app and error filenames are the same', function () {
+            manager.config({
+                consoleLevel: 'testconsolelevel',
+                app: './testapp.log',
+                appLevel: 'info',
+                error: './testapp.log',
+                errorLevel: 'info'
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(2);
+
+            t[0].name.should.equal('console');
+            t[0].level.should.equal('testconsolelevel');
+
+            t[1].name.should.equal('error');
+            t[1].level.should.equal('info');
+            t[1].filename.should.equal('testapp.log');
+        });
+
+        it('should merge settings from error and app configs', function () {
+            manager.config({
+                consoleLevel: 'testconsolelevel',
+                app: './testapp.log',
+                appLevel: 'info',
+                error: './testapp.log',
+                errorJSON: false,
+                errorLevel: 'error'
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(2);
+
+            t[0].name.should.equal('console');
+            t[0].level.should.equal('testconsolelevel');
+
+            t[1].name.should.equal('error');
+            t[1].level.should.equal('info');
+            t[1].formatter.should.equal(logstash);
+            t[1].filename.should.equal('testapp.log');
+        });
+
         it('should use non-logstash logging if JSON is false', function () {
             manager.config({
                 consoleJSON: false,
@@ -147,6 +189,65 @@ describe('instance', function () {
                 sessionID: 'sessionID',
                 extra: 'extravalue'
             });
+        });
+
+        it('should create loggers using the correct transports', function () {
+            manager.config({});
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(3);
+            t[0].should.be.an.instanceOf(winston.transports.Console);
+            t[1].should.be.an.instanceOf(winston.transports.File);
+            t[2].should.be.an.instanceOf(winston.transports.File);
+        });
+
+        it('should create transports using the file rotating logger if dateRotate is enabled', function () {
+            manager.config({
+                dateRotate: true
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(3);
+            t[0].should.be.an.instanceOf(winston.transports.Console);
+            t[1].should.be.an.instanceOf(FileRotateTransport);
+            t[1].dateRotate.should.equal(true);
+            t[2].should.be.an.instanceOf(FileRotateTransport);
+            t[2].dateRotate.should.equal(true);
+        });
+
+        it('should set maxsize value on transport if specified in options', function () {
+            manager.config({
+                sizeRotate: true,
+                maxSize: 1234
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(3);
+            t[1].maxsize.should.equal(1234);
+            t[2].maxsize.should.equal(1234);
+        });
+
+        it('should set tailable value on transport if sizeRotate is specified in options', function () {
+            manager.config({
+                sizeRotate: true
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(3);
+            t[1].tailable.should.equal(true);
+            t[2].tailable.should.equal(true);
+        });
+
+        it('should set maxFiles value on transport if any rotation is specified in options', function () {
+            manager.config({
+                sizeRotate: true,
+                maxFiles: 10
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(3);
+            t[1].maxFiles.should.equal(10);
+            t[2].maxFiles.should.equal(10);
         });
 
     });

@@ -27,12 +27,16 @@ describe('instance', function () {
     });
 
     describe('constructor', function () {
+        var logfileDate;
         beforeEach(function () {
+            logfileDate = new Date();
+            sinon.stub(FileRotateTransport.prototype, '_getLogfileDate').returns(logfileDate);
             sinon.stub(FileRotateTransport.prototype, '_dateRotateUpdateDay');
             sinon.stub(fileLib, 'File');
         });
 
         afterEach(function () {
+            FileRotateTransport.prototype._getLogfileDate.restore();
             FileRotateTransport.prototype._dateRotateUpdateDay.restore();
             fileLib.File.restore();
         });
@@ -49,18 +53,55 @@ describe('instance', function () {
             }).to.throw();
         });
 
-        it('should call _dateRotateUpdateDay if dateRotate is set', function () {
+        it('should set dateRotate to be true if specified in options', function () {
             var transport = new FileRotateTransport({ dateRotate: true });
             transport.dateRotate.should.equal(true);
-            FileRotateTransport.prototype._dateRotateUpdateDay.should.have.been.calledOnce;
         });
 
-        it('should not call _dateRotateUpdateDay if dateRotate is not set', function () {
+        it('should call _getLogfileDate if dateRotate is set', function () {
+            new FileRotateTransport({ dateRotate: true });
+            FileRotateTransport.prototype._getLogfileDate.should.have.been.calledOnce;
+        });
+
+        it('should call _dateRotateUpdateDay with the log file date', function () {
+            new FileRotateTransport({ dateRotate: true });
+            FileRotateTransport.prototype._dateRotateUpdateDay.should.have.been.calledWithExactly(logfileDate);
+        });
+
+        it('should not call _getLogfileDate or _dateRotateUpdateDay if dateRotate is not set', function () {
             var transport = new FileRotateTransport();
             expect(transport.dateRotate).to.not.be.ok;
+            FileRotateTransport.prototype._getLogfileDate.should.not.have.been.called;
             FileRotateTransport.prototype._dateRotateUpdateDay.should.not.have.been.called;
         });
 
+    });
+
+    describe('_getLogfileDate', function () {
+        var logfileDate;
+
+        beforeEach(function () {
+            logfileDate = new Date();
+            sinon.stub(fs, 'statSync').returns({ mtime: logfileDate });
+        });
+
+        afterEach(function () {
+            fs.statSync.restore();
+        });
+
+        it('should return the last-modified-time of the current log file', function () {
+            var transport = new FileRotateTransport({ filename: '/path/test.log' });
+            var result = transport._getLogfileDate();
+            fs.statSync.should.have.been.calledWithExactly('/path/test.log');
+            result.should.equal(logfileDate);
+        });
+
+        it('should return undefined if the stat throws an error', function () {
+            var transport = new FileRotateTransport({ filename: '/path/test.log' });
+            fs.statSync.throws(new Error);
+            var result = transport._getLogfileDate();
+            expect(result).to.equal(undefined);
+        });
     });
 
     describe('_dateRotateUpdateDay', function () {
@@ -81,6 +122,16 @@ describe('instance', function () {
                 .should.equal('2016-11-25T00:00:00.000Z');
             new Date(transport._dateRotateEndTime).toISOString()
                 .should.equal('2016-11-26T00:00:00.000Z');
+        });
+
+        it('should set the time bounds of the current log file to the start and end of the date given', function () {
+            var transport = new FileRotateTransport({ filename: 'test' });
+            var logfileDate = new Date(2015, 9, 10, 12, 11, 10);
+            transport._dateRotateUpdateDay(logfileDate);
+            new Date(transport._dateRotateStartTime).toISOString()
+                .should.equal('2015-10-10T00:00:00.000Z');
+            new Date(transport._dateRotateEndTime).toISOString()
+                .should.equal('2015-10-11T00:00:00.000Z');
         });
 
     });

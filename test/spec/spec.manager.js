@@ -133,6 +133,36 @@ describe('instance', function () {
             t[1].filename.should.equal('testapp.log');
         });
 
+        it('should use higher known level if error level is not known', function () {
+            manager.config({
+                app: './testapp.log',
+                appLevel: 'info',
+                error: './testapp.log',
+                errorLevel: 'unknownlevel'
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(2);
+
+            t[1].name.should.equal('error');
+            t[1].level.should.equal('info');
+        });
+
+        it('should use higher known level if app level is not known', function () {
+            manager.config({
+                app: './testapp.log',
+                appLevel: 'unknownlevel',
+                error: './testapp.log',
+                errorLevel: 'info'
+            });
+
+            var t = winston.loggers.options.transports;
+            t.length.should.equal(2);
+
+            t[1].name.should.equal('error');
+            t[1].level.should.equal('info');
+        });
+
         it('should use non-logstash logging if JSON is false', function () {
             manager.config({
                 consoleJSON: false,

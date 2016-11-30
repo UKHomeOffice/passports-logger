@@ -72,6 +72,21 @@ describe('logger instance', function () {
                 original: 'dest'
             });
         });
+
+        it('should handle plain text meta with the txt token function', function () {
+            var dest = {};
+            var sources = [
+                Logger.tokens
+            ];
+
+            logger._addMetaData(dest, {
+                keyName: 'txt.Plain text with chars. Symbols + / " -'
+            }, sources);
+
+            dest.should.deep.equal({
+                keyName: 'Plain text with chars. Symbols + / " -'
+            });
+        });
     });
 
     describe('trimHtml', function () {
@@ -379,6 +394,18 @@ describe('logger instance', function () {
                 delete process.env.NON_EXISTANT_ENV_VAR;
                 expect(Logger.tokens.res.fn.call(null, 'NON_EXISTANT_ENV_VAR'))
                     .to.be.undefined;
+            });
+        });
+
+        describe('txt', function () {
+            it('should return the argument as the value', function () {
+                Logger.tokens.txt.fn.call(null, 'value')
+                    .should.equal('value');
+            });
+
+            it('should join all aruments together with dots', function () {
+                Logger.tokens.txt.fn.call(null, 'value', ' value 2')
+                    .should.equal('value. value 2');
             });
         });
 

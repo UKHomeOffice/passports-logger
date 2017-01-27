@@ -17,6 +17,9 @@
   },
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=4"
+  },
   "bugs": {
     "url": "https://github.com/UKHomeOffice/passports-logger/issues"
   },

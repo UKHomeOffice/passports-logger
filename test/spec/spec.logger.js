@@ -274,11 +274,11 @@ describe('logger instance', function () {
 
             logSpy.should.have.been.calledWithExactly(
                 'info', 'message',
-                    sinon.match({
-                        label: 'test',
-                        host: sinon.match.string,
-                        request: ''
-                    }));
+                sinon.match({
+                    label: 'test',
+                    host: sinon.match.string,
+                    request: ''
+                }));
         });
 
     });

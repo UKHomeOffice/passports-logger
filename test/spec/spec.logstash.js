@@ -1,9 +1,9 @@
 
-var logstash = require('../../lib/logstash');
+let logstash = require('../../lib/logstash');
 
 
 describe('logstash', function () {
-    var options, clock, fakeTimestamp;
+    let options, clock, fakeTimestamp;
 
     beforeEach(function () {
         options = {
@@ -25,7 +25,7 @@ describe('logstash', function () {
     });
 
     it('should set timestamp, level, and message', function () {
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.deep.equal({
             '@timestamp': fakeTimestamp,
             level: 'TEST',
@@ -36,7 +36,7 @@ describe('logstash', function () {
     it('should use empty message and default level if none set', function () {
         delete options.level;
         delete options.message;
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.deep.equal({
             '@timestamp': fakeTimestamp,
             level: 'DEBUG',
@@ -46,7 +46,7 @@ describe('logstash', function () {
 
     it('should timestamp function if given', function () {
         options.timestamp = function () { return 'test timestamp'; };
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.deep.equal({
             '@timestamp': 'test timestamp',
             level: 'TEST',
@@ -56,7 +56,7 @@ describe('logstash', function () {
 
     it('should set meta value if it is not an object', function () {
         options.meta = 'meta string';
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.deep.equal({
             '@timestamp': fakeTimestamp,
             level: 'TEST',
@@ -70,7 +70,7 @@ describe('logstash', function () {
             key1: 'value1',
             key2: 2
         };
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.deep.equal({
             '@timestamp': fakeTimestamp,
             level: 'TEST',
@@ -84,7 +84,7 @@ describe('logstash', function () {
         options.meta = new Error('Error message');
         options.meta.stack = 'Error\n  1\n  2\n  3';
         options.meta.type = 'my_error';
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.deep.equal({
             '@timestamp': fakeTimestamp,
             level: 'TEST',
@@ -101,7 +101,7 @@ describe('logstash', function () {
         delete options.stringify;
         options.meta = new Error('Error message');
         options.meta.stack = 'Error\n  1\n  2\n  3';
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.equal(
             '{' +
             '"@timestamp":"1970-01-01T00:00:00.000Z",' +
@@ -123,7 +123,7 @@ describe('logstash', function () {
             circular: {}
         };
         options.meta.circular.content = options.meta.circular;
-        var output = logstash(options);
+        let output = logstash(options);
         output.should.equal(
             '{' +
             '"@timestamp":"1970-01-01T00:00:00.000Z",' +

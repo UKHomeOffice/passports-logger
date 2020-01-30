@@ -4,43 +4,54 @@
   "description": "Consistent logging for hmpo apps",
   "main": "index.js",
   "scripts": {
-    "test": "npm run lint && npm run unit && npm run cover && npm run check-coverage",
+    "test": "npm run lint && npm run unit && npm run check-coverage && npm audit",
     "lint": "eslint .",
-    "unit": "mocha test/spec/ --recursive --require test/helper",
-    "cover": "istanbul cover _mocha -- test/spec/ --recursive --require test/helper",
-    "check-coverage": "istanbul check-coverage --statement 100 --branch 100 --function 100 --line 100",
-    "snyk": "snyk test"
+    "unit": "nyc --reporter=lcov --reporter=text-summary _mocha test/spec/ --recursive --require test/helper",
+    "check-coverage": "nyc check-coverage"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/UKHomeOffice/passports-logger.git"
   },
-  "author": "",
+  "author": "PEX",
   "license": "MIT",
   "engines": {
-    "node": ">=4"
+    "node": ">=8"
   },
   "bugs": {
     "url": "https://github.com/UKHomeOffice/passports-logger/issues"
   },
   "homepage": "https://github.com/UKHomeOffice/passports-logger#readme",
   "dependencies": {
-    "async": "^2.1.4",
-    "debug": "^2.3.3",
+    "async": "^3.1.1",
+    "debug": "^4.1.1",
     "glob": "^7.1.1",
     "on-finished": "^2.3.0",
     "on-headers": "^1.0.1",
     "sort-object-keys": "^1.1.2",
     "underscore": "^1.8.3",
-    "winston": "^2.2.0"
+    "winston": "^2.4.4"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "eslint": "^2.10.2",
-    "istanbul": "^0.4.3",
-    "mocha": "^2.4.5",
-    "sinon": "^1.17.4",
-    "sinon-chai": "^2.8.0",
+    "chai": "^4.2.0",
+    "eslint": "^6.8.0",
+    "mocha": "^7.0.1",
+    "nyc": "^15.0.0",
+    "sinon": "^8.1.1",
+    "sinon-chai": "^3.4.0",
+    "sinon-test": "^2.4.2",
     "snyk": "^1.24.5"
+  },
+  "nyc": {
+    "all": true,
+    "exclude": [
+      "coverage/**",
+      "index.js",
+      "test/**"
+    ],
+    "lines": 100,
+    "branches": 100,
+    "functions": 100,
+    "statements": 100
   }
 }

@@ -1,5 +1,5 @@
 
-var interpolate = require('../../lib/interpolate');
+let interpolate = require('../../lib/interpolate');
 
 
 describe('interpolate', function () {
@@ -10,14 +10,14 @@ describe('interpolate', function () {
             interpolate.cleanValue('s').should.equal('s');
             interpolate.cleanValue(1).should.equal(1);
             interpolate.cleanValue(true).should.equal(true);
-            var date = new Date();
+            let date = new Date();
             interpolate.cleanValue(date).should.equal(date);
             expect(interpolate.cleanValue(null)).to.equal(null);
             expect(interpolate.cleanValue(undefined)).to.equal(undefined);
         });
 
         it('should stringify objects and arrays', function () {
-            var data = {
+            let data = {
                 number: 1,
                 boolean: true,
                 string: 's',
@@ -36,7 +36,7 @@ describe('interpolate', function () {
         });
 
         it('should return ? if it cant process an object', function () {
-            var obj1 = {}, obj2 = {};
+            let obj1 = {}; let obj2 = {};
 
             obj2.circular = obj1;
             obj1.circular = obj2;
@@ -46,7 +46,7 @@ describe('interpolate', function () {
     });
 
     describe('getTokenValue', function () {
-        var source = {
+        let source = {
             value1: 1,
             value2: {
                 subvalue2: '2'

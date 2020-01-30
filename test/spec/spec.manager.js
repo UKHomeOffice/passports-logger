@@ -1,9 +1,9 @@
 
-var Manager = require('../../lib/manager'),
-    Logger = require('../../lib/logger'),
-    logstash = require('../../lib/logstash'),
-    winston = require('winston'),
-    FileRotateTransport = require('../../lib/filerotatetransport');
+let Manager = require('../../lib/manager');
+let Logger = require('../../lib/logger');
+let logstash = require('../../lib/logstash');
+let winston = require('winston');
+let FileRotateTransport = require('../../lib/filerotatetransport');
 
 describe('Manager Class', function () {
 
@@ -14,7 +14,7 @@ describe('Manager Class', function () {
 });
 
 describe('instance', function () {
-    var manager = new Manager();
+    let manager = new Manager();
 
     it('should be an object', function () {
         manager.should.be.an('object');
@@ -52,7 +52,7 @@ describe('instance', function () {
         it('should set up default logging transport', function () {
             manager.config();
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
 
             t[0].name.should.equal('console');
@@ -76,7 +76,7 @@ describe('instance', function () {
                 errorLevel: 'testerrorlevel'
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
 
             t[0].name.should.equal('console');
@@ -100,7 +100,7 @@ describe('instance', function () {
                 errorLevel: 'info'
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(2);
 
             t[0].name.should.equal('console');
@@ -121,7 +121,7 @@ describe('instance', function () {
                 errorLevel: 'error'
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(2);
 
             t[0].name.should.equal('console');
@@ -141,7 +141,7 @@ describe('instance', function () {
                 errorLevel: 'unknownlevel'
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(2);
 
             t[1].name.should.equal('error');
@@ -156,7 +156,7 @@ describe('instance', function () {
                 errorLevel: 'info'
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(2);
 
             t[1].name.should.equal('error');
@@ -170,7 +170,7 @@ describe('instance', function () {
                 errorJSON: false
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
 
             expect(t[0].formatter).to.be.undefined;
@@ -185,7 +185,7 @@ describe('instance', function () {
                 errorJSON: true
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
 
             t[0].formatter.should.equal(logstash);
@@ -200,7 +200,7 @@ describe('instance', function () {
                 error: false
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(0);
         });
 
@@ -224,7 +224,7 @@ describe('instance', function () {
         it('should create loggers using the correct transports', function () {
             manager.config({});
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
             t[0].should.be.an.instanceOf(winston.transports.Console);
             t[1].should.be.an.instanceOf(winston.transports.File);
@@ -236,7 +236,7 @@ describe('instance', function () {
                 dateRotate: true
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
             t[0].should.be.an.instanceOf(winston.transports.Console);
             t[1].should.be.an.instanceOf(FileRotateTransport);
@@ -251,7 +251,7 @@ describe('instance', function () {
                 maxSize: 1234
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
             t[1].maxsize.should.equal(1234);
             t[2].maxsize.should.equal(1234);
@@ -262,7 +262,7 @@ describe('instance', function () {
                 sizeRotate: true
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
             t[1].tailable.should.equal(true);
             t[2].tailable.should.equal(true);
@@ -274,7 +274,7 @@ describe('instance', function () {
                 maxFiles: 10
             });
 
-            var t = winston.loggers.options.transports;
+            let t = winston.loggers.options.transports;
             t.length.should.equal(3);
             t[1].maxFiles.should.equal(10);
             t[2].maxFiles.should.equal(10);
@@ -283,8 +283,8 @@ describe('instance', function () {
     });
 
     describe('middleware', function () {
-        var logger = manager.get('testname');
-        var req, res, cb;
+        let logger = manager.get('testname');
+        let req, res, cb;
 
         beforeEach(function () {
             sinon.stub(manager, 'get').returns(logger);
@@ -303,7 +303,7 @@ describe('instance', function () {
         });
 
         it('should return express middleware', function () {
-            var middleware = manager.middleware();
+            let middleware = manager.middleware();
 
             middleware.should.be.a('function');
             middleware.length.should.equal(3);
@@ -320,7 +320,7 @@ describe('instance', function () {
         });
 
         it('should log details from a request', function (done) {
-            var middleware = manager.middleware();
+            let middleware = manager.middleware();
 
             middleware(req, res, cb);
             cb.should.have.been.calledOnce;
@@ -339,7 +339,7 @@ describe('instance', function () {
         });
 
         it('should not log public static requests', function (done) {
-            var middleware = manager.middleware();
+            let middleware = manager.middleware();
 
             req.url = 'blah/public/blah';
 
@@ -355,7 +355,7 @@ describe('instance', function () {
         });
 
         it('should not log healthcheck requests', function (done) {
-            var middleware = manager.middleware();
+            let middleware = manager.middleware();
 
             req.url = '/healthcheck';
 
@@ -379,18 +379,18 @@ describe('instance', function () {
         });
 
         it('should return a winston logger with a specified name', function () {
-            var logger = manager.get('testname1');
+            let logger = manager.get('testname1');
 
             logger.should.be.instanceof(Logger);
             logger.should.be.instanceof(winston.Logger);
             logger._name.should.equal('testname1');
 
-            var logger2 = manager.get('testname1');
+            let logger2 = manager.get('testname1');
             logger2.should.equal(logger);
         });
 
         it('should return a winston logger with a guessed name', function () {
-            var logger = manager.get();
+            let logger = manager.get();
 
             logger.should.be.instanceof(Logger);
             logger.should.be.instanceof(winston.Logger);
@@ -398,7 +398,7 @@ describe('instance', function () {
         });
 
         it('should return a winston logger with a joined name', function () {
-            var logger = manager.get(':testname');
+            let logger = manager.get(':testname');
 
             logger.should.be.instanceof(Logger);
             logger.should.be.instanceof(winston.Logger);

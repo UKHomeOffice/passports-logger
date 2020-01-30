@@ -1,8 +1,8 @@
 
-var Logger = require('../../lib/logger'),
-    Manager = require('../../lib/manager'),
-    winston = require('winston'),
-    IncomingMessage = require('http').IncomingMessage;
+let Logger = require('../../lib/logger');
+let Manager = require('../../lib/manager');
+let winston = require('winston');
+let IncomingMessage = require('http').IncomingMessage;
 
 
 describe('Logger Class', function () {
@@ -15,10 +15,8 @@ describe('Logger Class', function () {
 
 describe('logger instance', function () {
 
-    var logSpy = sinon.spy(winston.Logger.prototype, 'log');
-
     it('should be an object', function () {
-        var logger = new Logger('testname');
+        let logger = new Logger('testname');
         logger.should.be.an('object');
         logger.should.be.instanceof(Logger);
         logger.should.be.instanceof(winston.Logger);
@@ -26,8 +24,8 @@ describe('logger instance', function () {
     });
 
     describe('_addMeta', function () {
-        var logger = new Logger('testname');
-        var sources = [
+        let logger = new Logger('testname');
+        let sources = [
             {
                 source: {
                     name: 'value'
@@ -45,7 +43,7 @@ describe('logger instance', function () {
 
 
         it('should add first value found in sources', function () {
-            var dest = {
+            let dest = {
                 original: 'dest'
             };
 
@@ -60,7 +58,7 @@ describe('logger instance', function () {
         });
 
         it('should ignore values not found in sources', function () {
-            var dest = {
+            let dest = {
                 original: 'dest'
             };
 
@@ -74,8 +72,8 @@ describe('logger instance', function () {
         });
 
         it('should handle plain text meta with the txt token function', function () {
-            var dest = {};
-            var sources = [
+            let dest = {};
+            let sources = [
                 Logger.tokens
             ];
 
@@ -90,25 +88,25 @@ describe('logger instance', function () {
     });
 
     describe('trimHtml', function () {
-        var logger = new Logger();
+        let logger = new Logger();
 
         it('should filter an html body to raw text', function () {
-            var body = '<html><head><title>a\n title</title></head><body>\r\n<b\n>this</b> is <i>the</i><br>body<script>\n\n//\n</script></body></html>';
+            let body = '<html><head><title>a\n title</title></head><body>\r\n<b\n>this</b> is <i>the</i><br>body<script>\n\n//\n</script></body></html>';
 
             logger.trimHtml(body).should.equal('a title: this is the body');
         });
 
         it('should return anything that isn\'t a string', function () {
             logger.trimHtml(123).should.equal(123);
-            var obj = {};
+            let obj = {};
             logger.trimHtml(obj).should.equal(obj);
-            var arr = [];
+            let arr = [];
             logger.trimHtml(arr).should.equal(arr);
             expect(logger.trimHtml(undefined)).to.be.undefined;
         });
 
         it('should shorten a body to max length', function () {
-            var body = Array(501).join('a');
+            let body = Array(501).join('a');
 
             logger.trimHtml(body).should.have.length(400);
             logger.trimHtml(body, 200).should.have.length(200);
@@ -120,11 +118,17 @@ describe('logger instance', function () {
 
 
     describe('log', function () {
-        var logger;
+        let logger;
+        let logSpy;
+
         beforeEach(function () {
-            logSpy.reset();
-            var manager = new Manager();
+            logSpy = sinon.stub(winston.Logger.prototype, 'log');
+            let manager = new Manager();
             logger = new Logger('test', manager);
+        });
+
+        afterEach(function () {
+            logSpy.restore();
         });
 
         it('should default no metadata and unknown label if no args given to logger instance', function () {
@@ -174,7 +178,7 @@ describe('logger instance', function () {
         });
 
         it('passes a callback through to the winston logger if specified', function () {
-            var cb = sinon.spy();
+            let cb = sinon.spy();
             logger.log('info', 'message', cb);
 
             logSpy.should.have.been.calledWithExactly(
@@ -201,7 +205,7 @@ describe('logger instance', function () {
         });
 
         it('should decoded a req object in meta', function () {
-            var req = new IncomingMessage();
+            let req = new IncomingMessage();
             req.sessionID = 'abc123';
             req.originalUrl = '/abc/123';
             req.url = '/123';
@@ -219,7 +223,7 @@ describe('logger instance', function () {
         });
 
         it('should pull res out of req object in meta', function () {
-            var req = {
+            let req = {
                 res: {
                     responseTime: 1234567
                 }
@@ -231,7 +235,7 @@ describe('logger instance', function () {
         });
 
         it('should pull req out of res object in meta', function () {
-            var res = {
+            let res = {
                 req: {
                     url: 'testurl'
                 }
@@ -243,13 +247,13 @@ describe('logger instance', function () {
         });
 
         it('should decoded additional info from req object if level is request', function () {
-            var req = new IncomingMessage();
+            let req = new IncomingMessage();
             req.sessionID = 'abc123';
             req.originalUrl = '/abc/123';
             req.method = 'GET';
             req.url = '/123';
 
-            var res = {
+            let res = {
                 responseTime: 5000
             };
 
@@ -268,17 +272,17 @@ describe('logger instance', function () {
         });
 
         it('should decode an unpopulated req object in meta', function () {
-            var req = new IncomingMessage();
+            let req = new IncomingMessage();
 
             logger.log('info', 'message', {req: req});
 
             logSpy.should.have.been.calledWithExactly(
                 'info', 'message',
-                    sinon.match({
-                        label: 'test',
-                        host: sinon.match.string,
-                        request: ''
-                    }));
+                sinon.match({
+                    label: 'test',
+                    host: sinon.match.string,
+                    request: ''
+                }));
         });
 
     });
@@ -289,7 +293,7 @@ describe('logger instance', function () {
 
         describe('request', function () {
             it('should return the full request URL', function () {
-                var meta = {
+                let meta = {
                     req: {
                         originalUrl: '/test/path?query=string',
                         url: '/path'
@@ -300,7 +304,7 @@ describe('logger instance', function () {
             });
 
             it('should return the url if originaUrl is not present', function () {
-                var meta = {
+                let meta = {
                     req: {
                         url: '/path'
                     }
@@ -312,7 +316,7 @@ describe('logger instance', function () {
 
         describe('strippedRequest', function () {
             it('should return originalUrl without the query string', function () {
-                var meta = {
+                let meta = {
                     req: {
                         originalUrl: '/test/path?query=string',
                         url: '/path'
@@ -323,7 +327,7 @@ describe('logger instance', function () {
             });
 
             it('should return url without the query string if orginalUrl is not present', function () {
-                var meta = {
+                let meta = {
                     req: {
                         url: '/test/path?query=string'
                     }
@@ -333,7 +337,7 @@ describe('logger instance', function () {
             });
 
             it('should return a url that has no query string', function () {
-                var meta = {
+                let meta = {
                     req: {
                         originalUrl: '/test/path',
                         url: '/path'
@@ -344,7 +348,7 @@ describe('logger instance', function () {
             });
 
             it('should return the url if originaUrl is not present', function () {
-                var meta = {
+                let meta = {
                     req: {
                         url: '/path'
                     }
@@ -354,21 +358,21 @@ describe('logger instance', function () {
             });
 
             it('should return undefined if neither is present', function () {
-                var meta = {
+                let meta = {
                     req: {}
                 };
                 expect(Logger.tokens.strippedRequest.fn.call(meta)).to.be.undefined;
             });
 
             it('should return undefined if req is not present', function () {
-                var meta = {};
+                let meta = {};
                 expect(Logger.tokens.strippedRequest.fn.call(meta)).to.be.undefined;
             });
         });
 
         describe('httpVersion', function () {
             it('should return formatted http version', function () {
-                var meta = {
+                let meta = {
                     req: {
                         httpVersionMajor: 44,
                         httpVersionMinor: 55
@@ -410,11 +414,11 @@ describe('logger instance', function () {
         });
 
         describe('res', function () {
-            var getHeader = sinon.stub();
+            let getHeader = sinon.stub();
             getHeader.returns(undefined);
             getHeader.withArgs('test1').returns('value');
             getHeader.withArgs('test2').returns(['array1', 2]);
-            var context = {
+            let context = {
                 res: {
                     getHeader: getHeader
                 }
@@ -450,7 +454,7 @@ describe('logger instance', function () {
         });
 
         describe('req', function () {
-            var context = {
+            let context = {
                 req: {
                     headers: {
                         test: 'value',
@@ -483,7 +487,7 @@ describe('logger instance', function () {
 
         describe('clientip', function () {
             it('should return ip from remoteAddress', function () {
-                var context = {
+                let context = {
                     req: {
                         connection: {
                             remoteAddress: '1234'
@@ -496,7 +500,7 @@ describe('logger instance', function () {
             });
 
             it('should return ip from x-forwarded-for', function () {
-                var context = {
+                let context = {
                     req: {
                         headers: {
                             'x-forwarded-for': '5678'
@@ -512,7 +516,7 @@ describe('logger instance', function () {
             });
 
             it('should return ip from x-forwarded-for list', function () {
-                var context = {
+                let context = {
                     req: {
                         headers: {
                             'x-forwarded-for': '5678, 8910'
@@ -537,16 +541,16 @@ describe('logger instance', function () {
 
     describe('reToken', function () {
         it('should not match tokenless string', function () {
-            var match = Logger.reToken().exec('part1.part2.part3');
+            let match = Logger.reToken().exec('part1.part2.part3');
             expect(match).to.not.be.ok;
         });
         it('should match a valid dot token', function () {
-            var match = Logger.reToken().exec(':part1.part2.part3');
+            let match = Logger.reToken().exec(':part1.part2.part3');
             expect(match).to.be.ok;
             match[1].should.equal('part1.part2.part3');
         });
         it('should match a valid dot and bracket token', function () {
-            var match = Logger.reToken().exec(':part1.part2[part3]');
+            let match = Logger.reToken().exec(':part1.part2[part3]');
             expect(match).to.be.ok;
             match[1].should.equal('part1.part2');
             match[3].should.equal('part3');

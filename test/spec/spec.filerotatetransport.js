@@ -1,12 +1,11 @@
 
-var FileRotateTransport = require('../../lib/filerotatetransport'),
-    winston = require('winston'),
-    fileLib = require('winston/lib/winston/transports/file'),
-    fs = require('fs'),
-    glob = require('glob'),
-    async = require('async');
+const FileRotateTransport = require('../../lib/filerotatetransport');
+const winston = require('winston');
+const fs = require('fs');
+const glob = require('glob');
+const async = require('async');
 
-var File = winston.transports.File;
+const File = winston.transports.File;
 
 
 describe('FileRotateTransport Class', function () {
@@ -20,31 +19,25 @@ describe('FileRotateTransport Class', function () {
 describe('instance', function () {
 
     it('should be an object', function () {
-        var transport = new FileRotateTransport({ filename: '/path/test.log' });
+        let transport = new FileRotateTransport({ filename: '/path/test.log' });
         transport.should.be.an('object');
         transport.should.be.instanceof(FileRotateTransport);
         transport.should.be.instanceof(File);
     });
 
     describe('constructor', function () {
-        var logfileDate;
+        let logfileDate;
+
         beforeEach(function () {
             logfileDate = new Date();
             sinon.stub(FileRotateTransport.prototype, '_getLogfileDate').returns(logfileDate);
             sinon.stub(FileRotateTransport.prototype, '_dateRotateUpdateDay');
-            sinon.stub(fileLib, 'File');
+            console.log(winston.transports);
         });
 
         afterEach(function () {
             FileRotateTransport.prototype._getLogfileDate.restore();
             FileRotateTransport.prototype._dateRotateUpdateDay.restore();
-            fileLib.File.restore();
-        });
-
-        it('should call the parent method', function () {
-            new FileRotateTransport(1, 2, 3);
-            fileLib.File.should.have.been.calledOnce;
-            fileLib.File.should.have.been.calledWithExactly(1, 2, 3);
         });
 
         it('should throw an error if maxsize and dateRotate are both specified', function () {
@@ -54,22 +47,22 @@ describe('instance', function () {
         });
 
         it('should set dateRotate to be true if specified in options', function () {
-            var transport = new FileRotateTransport({ dateRotate: true });
+            let transport = new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
             transport.dateRotate.should.equal(true);
         });
 
         it('should call _getLogfileDate if dateRotate is set', function () {
-            new FileRotateTransport({ dateRotate: true });
+            new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
             FileRotateTransport.prototype._getLogfileDate.should.have.been.calledOnce;
         });
 
         it('should call _dateRotateUpdateDay with the log file date', function () {
-            new FileRotateTransport({ dateRotate: true });
+            new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
             FileRotateTransport.prototype._dateRotateUpdateDay.should.have.been.calledWithExactly(logfileDate);
         });
 
         it('should not call _getLogfileDate or _dateRotateUpdateDay if dateRotate is not set', function () {
-            var transport = new FileRotateTransport();
+            let transport = new FileRotateTransport({ filename: '/path/test.log' });
             expect(transport.dateRotate).to.not.be.ok;
             FileRotateTransport.prototype._getLogfileDate.should.not.have.been.called;
             FileRotateTransport.prototype._dateRotateUpdateDay.should.not.have.been.called;
@@ -78,7 +71,7 @@ describe('instance', function () {
     });
 
     describe('_getLogfileDate', function () {
-        var logfileDate;
+        let logfileDate;
 
         beforeEach(function () {
             logfileDate = new Date();
@@ -90,22 +83,22 @@ describe('instance', function () {
         });
 
         it('should return the last-modified-time of the current log file', function () {
-            var transport = new FileRotateTransport({ filename: '/path/test.log' });
-            var result = transport._getLogfileDate();
+            let transport = new FileRotateTransport({ filename: '/path/test.log' });
+            let result = transport._getLogfileDate();
             fs.statSync.should.have.been.calledWithExactly('/path/test.log');
             result.should.equal(logfileDate);
         });
 
         it('should return undefined if the stat throws an error', function () {
-            var transport = new FileRotateTransport({ filename: '/path/test.log' });
+            let transport = new FileRotateTransport({ filename: '/path/test.log' });
             fs.statSync.throws(new Error);
-            var result = transport._getLogfileDate();
+            let result = transport._getLogfileDate();
             expect(result).to.equal(undefined);
         });
     });
 
     describe('_dateRotateUpdateDay', function () {
-        var clock;
+        let clock;
 
         beforeEach(function () {
             clock = sinon.useFakeTimers(Date.parse(new Date(2016, 10, 25, 12, 11, 10)));
@@ -116,7 +109,7 @@ describe('instance', function () {
         });
 
         it('should set the time bounds of the current log file to the start and end of the current day', function () {
-            var transport = new FileRotateTransport({ filename: 'test' });
+            let transport = new FileRotateTransport({ filename: 'test' });
             transport._dateRotateUpdateDay();
             new Date(transport._dateRotateStartTime).toISOString()
                 .should.equal('2016-11-25T00:00:00.000Z');
@@ -125,8 +118,8 @@ describe('instance', function () {
         });
 
         it('should set the time bounds of the current log file to the start and end of the date given', function () {
-            var transport = new FileRotateTransport({ filename: 'test' });
-            var logfileDate = new Date(2015, 9, 10, 12, 11, 10);
+            let transport = new FileRotateTransport({ filename: 'test' });
+            let logfileDate = new Date(2015, 9, 10, 12, 11, 10);
             transport._dateRotateUpdateDay(logfileDate);
             new Date(transport._dateRotateStartTime).toISOString()
                 .should.equal('2015-10-10T00:00:00.000Z');
@@ -137,7 +130,7 @@ describe('instance', function () {
     });
 
     describe('open', function () {
-        var clock, transport, cb;
+        let clock, transport, cb;
 
         beforeEach(function () {
             clock = sinon.useFakeTimers(Date.parse(new Date(2016, 10, 25, 12, 11, 10)));
@@ -147,7 +140,6 @@ describe('instance', function () {
             sinon.stub(File.prototype, 'open');
             cb = sinon.stub();
             transport = new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
-            clock.tick(86400000);
         });
 
         afterEach(function () {
@@ -171,12 +163,12 @@ describe('instance', function () {
         });
 
         it('should call the parent if the current time is within the log period', function () {
-            clock.tick(-86400000);
             transport.open(cb);
             File.prototype.open.should.have.been.calledWithExactly(cb);
         });
 
         it('should call _dateRotateLog only if dateRotate is enabled, not opening and out of date range', function () {
+            clock.tick(86400000);
             transport.open(cb);
             File.prototype.open.should.not.have.been.called;
             FileRotateTransport.prototype._dateRotateLog.should.have.been.calledOnce;
@@ -188,7 +180,7 @@ describe('instance', function () {
     });
 
     describe('_getFile', function () {
-        var transport;
+        let transport;
 
         beforeEach(function () {
             sinon.stub(File.prototype, '_getFile').returns('parent.log');
@@ -200,35 +192,35 @@ describe('instance', function () {
 
         it('returns the basepath of the logfile if dateRotate is enabled', function () {
             transport = new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
-            var result = transport._getFile();
+            let result = transport._getFile();
             File.prototype._getFile.should.not.have.been.called;
             result.should.equal('test.log');
         });
 
         it('calls the parent if daterotate is not enabled', function () {
             transport = new FileRotateTransport({ filename: '/path/test.log' });
-            var result = transport._getFile();
+            let result = transport._getFile();
             File.prototype._getFile.should.have.been.calledOnce;
             result.should.equal('parent.log');
         });
     });
 
     describe('_getArchiveLogName', function () {
-        var transport;
+        let transport;
 
         beforeEach(function () {
             transport = new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
         });
 
         it('returns a log file based on the given datetime', function () {
-            var time = Date.parse(new Date(2015, 6, 13, 12, 11, 10));
-            var filename = transport._getArchiveLogName('logfile.txt', time);
+            let time = Date.parse(new Date(2015, 6, 13, 12, 11, 10));
+            let filename = transport._getArchiveLogName('logfile.txt', time);
             filename.should.equal('logfile-2015-07-13.txt');
         });
     });
 
     describe('_dateRotateLog', function () {
-        var transport, clock, cb;
+        let transport, clock, cb;
 
         beforeEach(function () {
             clock = sinon.useFakeTimers(Date.parse(new Date(2016, 10, 25, 12, 11, 10)));
@@ -277,37 +269,37 @@ describe('instance', function () {
 
     describe('_dateRotateGlob', function () {
         it('should be the glob module', function () {
-            FileRotateTransport.prototype._dateRotateGlob.should.equal(glob);
+            const transport = new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
+            transport._dateRotateGlob.should.equal(glob);
         });
     });
 
     describe('_dateRotateRemoveOldFiles', function () {
-        var transport, cb;
+        let transport, cb;
 
         beforeEach(function () {
             transport = new FileRotateTransport({ filename: '/path/test.log', dateRotate: true });
             sinon.stub(async, 'each');
-            sinon.stub(FileRotateTransport.prototype, '_dateRotateGlob');
+            transport._dateRotateGlob = sinon.stub();
             cb = sinon.stub();
         });
 
         afterEach(function () {
             async.each.restore();
-            FileRotateTransport.prototype._dateRotateGlob.restore();
         });
 
         it('calls the callback without deleting any files if maxFiles is zero', function () {
             transport.maxFiles = 0;
             transport._dateRotateRemoveOldFiles(cb);
             cb.should.have.been.calledWithExactly();
-            FileRotateTransport.prototype._dateRotateGlob.should.not.have.been.called;
+            transport._dateRotateGlob.should.not.have.been.called;
             async.each.should.not.have.been.called;
         });
 
         it('calls glob with a pattern based on the logname', function () {
             transport.maxFiles = 3;
             transport._dateRotateRemoveOldFiles(cb);
-            FileRotateTransport.prototype._dateRotateGlob.should.have.been.calledWithExactly(
+            transport._dateRotateGlob.should.have.been.calledWithExactly(
                 '/path/test-*-*-*.log',
                 sinon.match.func
             );
@@ -315,7 +307,7 @@ describe('instance', function () {
 
         it('calls fs.unlink for each of the oldest files outside of maxFiles', function () {
             transport.maxFiles = 3;
-            FileRotateTransport.prototype._dateRotateGlob.yields(null, [
+            transport._dateRotateGlob.yields(null, [
                 '/path/test-2016-11-15.log',
                 '/path/test-2016-07-02.log',
                 '/path/test-2016-12-13.log',
@@ -337,7 +329,7 @@ describe('instance', function () {
 
         it('only calls callback if number of files is equal to maxFiles', function () {
             transport.maxFiles = 3;
-            FileRotateTransport.prototype._dateRotateGlob.yields(null, [
+            transport._dateRotateGlob.yields(null, [
                 '/path/test-2015-11-14.log',
                 '/path/test-2016-07-02.log',
                 '/path/test-2016-04-30.log'
@@ -349,7 +341,7 @@ describe('instance', function () {
 
         it('only calls callback if number of files is less than maxFiles', function () {
             transport.maxFiles = 3;
-            FileRotateTransport.prototype._dateRotateGlob.yields(null, [
+            transport._dateRotateGlob.yields(null, [
                 '/path/test-2015-11-14.log',
                 '/path/test-2016-04-30.log'
             ]);
@@ -360,7 +352,7 @@ describe('instance', function () {
 
         it('only calls callback if files not returned', function () {
             transport.maxFiles = 3;
-            FileRotateTransport.prototype._dateRotateGlob.yields(null);
+            transport._dateRotateGlob.yields(null);
             transport._dateRotateRemoveOldFiles(cb);
             async.each.should.not.have.been.called;
             cb.should.have.been.calledOnce;
@@ -368,7 +360,7 @@ describe('instance', function () {
 
         it('only calls callback if an error is returned', function () {
             transport.maxFiles = 3;
-            FileRotateTransport.prototype._dateRotateGlob.yields({ message: 'Error' });
+            transport._dateRotateGlob.yields({ message: 'Error' });
             transport._dateRotateRemoveOldFiles(cb);
             async.each.should.not.have.been.called;
             cb.should.have.been.calledWithExactly({ message: 'Error' });

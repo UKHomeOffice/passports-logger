@@ -1,6 +1,6 @@
 {
   "name": "hmpo-logger",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Consistent logging for hmpo apps",
   "main": "index.js",
   "scripts": {

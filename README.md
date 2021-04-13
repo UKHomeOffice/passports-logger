@@ -25,6 +25,7 @@ logger.info(':method :url took :responseTime ms and was res[content-length] byte
 logger.log('info', 'response :responseText', { responseText: logger.trimHtml(htmlBody, 100)});
 ```
 
+*Note: try to include `req` in your log metadata where possible to decorate your log entries with info about the current express request*
 
 ### `get(name)`
 
@@ -59,6 +60,8 @@ require('hmpo-logger').get(name);
 ### `config(options)`
 
 Initialise the logger at the top level of the app, specifying the log locations and logging levels of three pre-defined transports: console, app, and error.
+
+*Note: configure the logger as early as possible in code before the logger gets used to avoid config issues.*
 
 ```javascript
 var hmpoLogger = require('hmpo-logger');

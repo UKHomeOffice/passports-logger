@@ -32,7 +32,6 @@ describe('instance', function () {
             logfileDate = new Date();
             sinon.stub(FileRotateTransport.prototype, '_getLogfileDate').returns(logfileDate);
             sinon.stub(FileRotateTransport.prototype, '_dateRotateUpdateDay');
-            console.log(winston.transports);
         });
 
         afterEach(function () {

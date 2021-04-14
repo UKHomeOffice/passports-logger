@@ -27,6 +27,11 @@ describe('instance', function () {
             global.GlobalHmpoLogger = 'testglobal';
             manager.getGlobal().should.equal('testglobal');
         });
+
+        it('should return the current manager if no global has been set my config()', function () {
+            global.GlobalHmpoLogger = null;
+            manager.getGlobal().should.equal(manager);
+        });
     });
 
     describe('config', function () {
@@ -280,11 +285,39 @@ describe('instance', function () {
             t[2].maxFiles.should.equal(10);
         });
 
+        it('should create default regex for public', function () {
+            manager.config();
+            manager.rePublicRequests.should.be.instanceOf(RegExp);
+            manager.rePublicRequests.toString().should.equal('/\\/public\\//');
+        });
+
+        it('should create default regex for healthcheck', function () {
+            manager.config();
+            manager.reHealthcheckRequests.should.be.instanceOf(RegExp);
+            manager.reHealthcheckRequests.toString().should.equal('/^\\/healthcheck(\\/|$)/');
+        });
+
+        it('should create regex for public based on config', function () {
+            manager.config({ publicPattern: '123' });
+            manager.rePublicRequests.should.be.instanceOf(RegExp);
+            manager.rePublicRequests.toString().should.equal('/123/');
+        });
+
+        it('should create regex for healthcheck based on config', function () {
+            manager.config({ healthcheckPattern: '456' });
+            manager.reHealthcheckRequests.should.be.instanceOf(RegExp);
+            manager.reHealthcheckRequests.toString().should.equal('/456/');
+        });
     });
 
     describe('middleware', function () {
-        let logger = manager.get('testname');
+        let logger;
         let req, res, cb;
+
+        before(function () {
+            delete global.GlobalHmpoLogger;
+            logger = manager.config().get('testname');
+        });
 
         beforeEach(function () {
             sinon.stub(manager, 'get').returns(logger);
@@ -375,6 +408,7 @@ describe('instance', function () {
     describe('get', function () {
         beforeEach(function () {
             delete global.GlobalHmpoLogger;
+            manager.config();
             winston.loggers.options.transports = [];
         });
 
@@ -403,6 +437,12 @@ describe('instance', function () {
             logger.should.be.instanceof(Logger);
             logger.should.be.instanceof(winston.Logger);
             logger._name.should.equal('hmpo-logger:testname');
+        });
+
+        it('should default to no transports', function () {
+            winston.loggers.options.transports = null;
+            let logger = manager.get(':testname2');
+            logger.transports.should.eql({});
         });
     });
 

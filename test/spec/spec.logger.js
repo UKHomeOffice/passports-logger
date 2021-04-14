@@ -124,6 +124,8 @@ describe('logger instance', function () {
         beforeEach(function () {
             logSpy = sinon.stub(winston.Logger.prototype, 'log');
             let manager = new Manager();
+            delete global.GlobalHmpoLogger;
+            manager.config();
             logger = new Logger('test', manager);
         });
 

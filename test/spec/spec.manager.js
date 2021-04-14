@@ -410,6 +410,17 @@ describe('instance', function () {
             delete global.GlobalHmpoLogger;
             manager.config();
             winston.loggers.options.transports = [];
+            sinon.stub(console, 'warn');
+        });
+
+        afterEach((function () {
+            console.warn.restore();
+        }));
+
+        it('should log a warning if no global logger is set', function () {
+            delete global.GlobalHmpoLogger;
+            manager.get('testname1');
+            console.warn.should.have.been.called;
         });
 
         it('should return a winston logger with a specified name', function () {
